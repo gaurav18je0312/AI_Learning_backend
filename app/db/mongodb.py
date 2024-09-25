@@ -38,3 +38,9 @@ async def delete_object(collection_name, object_name):
     if result.deleted_count == 0:
         return None
     return object_name
+
+async def find_object(collection_name, data):
+    data = await db[collection_name].find_one(data)
+    if data is not None:
+        data["_id"] = str(data["_id"])
+    return data

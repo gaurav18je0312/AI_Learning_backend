@@ -14,8 +14,8 @@ async def connect_minio():
         secret_key=settings.minio_secret_key,
         secure=False
         )
-    if not minio_client.bucket_exists(minio_bucket_books):
-        minio_client.make_bucket(minio_bucket_books)
+    if not minio_client.bucket_exists(minio_bucket):
+        minio_client.make_bucket(minio_bucket)
 
 async def upload_default_book_to_minio(file_path, file_name, subject_name):
     try:
