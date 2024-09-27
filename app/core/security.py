@@ -5,7 +5,7 @@ from app.models.models import User
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import HTTPException, status, Depends
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/users/token")
 
 def create_access_token(data: User):
     expire_delta = timedelta(minutes=settings.jwt_access_token_expire_minutes)
@@ -23,11 +23,18 @@ def verify_access_token(token: str):
         return None
 
 def get_current_user(token: str = Depends(oauth2_scheme)):
-    user = verify_access_token(token)
-    if user is None:
+    user_data = verify_access_token(token)
+    if user_data is None:
         raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    return user
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    if user_data is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    user_data.pop('exp')
+    return user_data

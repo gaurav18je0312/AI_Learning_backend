@@ -23,14 +23,15 @@ async def create_object(collection_name, data):
 async def get_object(collection_name, object_name):
     data = await db[collection_name].find_one({"_id": ObjectId(object_name)})
     if data is not None:
-        data["_id"] = str(data["_id"])
+        data["id"] = str(data["_id"])
+        data.pop("_id", None)
     return data
 
 async def update_object(collection_name, object_name, data):
     result = await db[collection_name].update_one({"_id": ObjectId(object_name)}, {"$set": data})
     if result.modified_count == 0:
         return None
-    data["_id"] = object_name
+    data["id"] = object_name
     return data
 
 async def delete_object(collection_name, object_name):
@@ -42,5 +43,6 @@ async def delete_object(collection_name, object_name):
 async def find_object(collection_name, data):
     data = await db[collection_name].find_one(data)
     if data is not None:
-        data["_id"] = str(data["_id"])
+        data["id"] = str(data["_id"])
+        data.pop("_id", None)
     return data

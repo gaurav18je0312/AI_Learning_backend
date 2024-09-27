@@ -37,10 +37,15 @@ class Topic(BaseModel):
     description: str
     book_location: str
 
+    class Config:
+        populate_by_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
+
 class Book(BaseModel):
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     name: str
-    topics: List(str)
+    topics: List[str]
 
     class Config:
         populate_by_name = True
