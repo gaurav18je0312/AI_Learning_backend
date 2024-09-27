@@ -20,7 +20,7 @@ async def connect_minio():
 async def upload_default_book_to_minio(file_path, file_name, subject_name):
     try:
         object_name = f"books/{subject_name}/{file_name}"
-        minio_client.fput_object(minio_bucket_books, object_name, file_path, content_type="application/pdf")
+        minio_client.fput_object(minio_bucket, object_name, file_path, content_type="application/pdf")
         return object_name
     except Exception as e:
         print(f"Error uploading file to MinIO: {e}")
@@ -29,7 +29,7 @@ async def upload_default_book_to_minio(file_path, file_name, subject_name):
 async def upload_user_book_to_minio(file_path, file_name, user_id):
     try:
         object_name = f"users/{user_id}/books/{file_name}"
-        minio_client.fput_object(minio_bucket_books, object_name, file_path, content_type="application/pdf")
+        minio_client.fput_object(minio_bucket, object_name, file_path, content_type="application/pdf")
         os.remove(file_path)
         return object_name
     except Exception as e:
@@ -39,7 +39,7 @@ async def upload_user_book_to_minio(file_path, file_name, user_id):
 async def upload_user_chat_image_to_minio(file_path, file_name, user_id, chat_id):
     try:
         object_name = f"users/{user_id}/images/{chat_id}/{file_name}"
-        minio_client.fput_object(minio_bucket_books, object_name, file_path, content_type="image/jpeg")
+        minio_client.fput_object(minio_bucket, object_name, file_path, content_type="image/jpeg")
         os.remove(file_path)
         return object_name
     except Exception as e:

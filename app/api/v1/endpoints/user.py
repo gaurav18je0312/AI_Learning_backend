@@ -1,15 +1,25 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from app.db.mongodb import create_object, get_object, update_object, delete_object, find_object
-from app.core.security import create_access_token, verify_password
+from app.core.security import create_access_token
+from app.schemas.user_dto import loginRequest, loginResponse, createUserRequest, createUserResponse
+import bcrypt
 
 router = APIRouter()
 
-@router.get("/login", response_model=dict, description="Get the access token for the user")
+def hash_password(password):
+    salt = bcrypt.gensalt()
+    password = bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+    return password
+
+def verify_password(password, hashed_password):
+    return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
+
+@router.post("/login", response_model=loginResponse, description="Get the access token for the user")
 async def login(
-    request: dict
+    request: loginRequest
 ):
-    email = request.get("email")
-    password = request.get("password")
+    email = request.email
+    password = request.password
     
     user = await find_object("users", {"email": email})
 
@@ -18,16 +28,16 @@ async def login(
 
     access_token = create_access_token(user)
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"id": user["_id"], "name": user["name"], "email": user["email"], "class_name": user["class_name"], "access_token": access_token}
 
-@router.post("/create-user", response_model=dict, description="Create a new user")
+@router.post("/create-user", response_model=createUserResponse, description="Create a new user")
 async def createUser(
-    request: dict
+    request: createUserRequest
 ):
-    name = request.get("name")
-    email = request.get("email")
-    password = request.get("password")
-    class_name = request.get("class_name")
+    name = request.name
+    email = request.email
+    password = hash_password(request.password)
+    class_name = request.class_name
 
     user = await create_object("users", {"name": name, "email": email, "password": password, "class_name": class_name})
 
