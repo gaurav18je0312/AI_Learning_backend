@@ -3,6 +3,8 @@ from pymongo.errors import ServerSelectionTimeoutError
 from fastapi import HTTPException
 from app.core.config import settings
 from bson import ObjectId
+import zlib
+import pickle
 
 
 MONGO_URI = settings.mongodb_url 
@@ -46,3 +48,24 @@ async def find_object(collection_name, data):
         data["id"] = str(data["_id"])
         data.pop("_id", None)
     return data
+
+async def get_chat(id):
+    data = await db["chat"].find_one({"_id": ObjectId(id)})
+    if data is not None:
+        chat = zlib.decompress(data["chat"])
+        return pickle.loads(chat)
+    return None
+
+async def update_chat(id, chat):
+    pickled_json = pickle.dumps(chat)
+    compressed_json = zlib.compress(pickled_json)
+    result = await db["chat"].update_one({"_id": ObjectId(id)}, {"$set": {"chat": compressed_json}})
+    if result.modified_count == 0:
+        return None
+    return id
+
+async def create_chat(chat):
+    pickled_json = pickle.dumps(chat)
+    compressed_json = zlib.compress(pickled_json)
+    result = await db["chat"].insert_one({"chat": compressed_json})
+    return str(result.inserted_id)

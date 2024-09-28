@@ -76,6 +76,7 @@ class AITextbookChat(BaseModel):
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     class_name: str
     subject: str
+    book: str
     topic: str
     user_id: str
     chat_id: str

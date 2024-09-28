@@ -28,6 +28,7 @@ async def get_subjects(
             for ind3, topic in enumerate(className["subjects"][ind]["books"][ind2]["topics"]):
 
                 data['subjects'][ind]['books'][ind2]['topics'][ind3] = await get_object("topic", topic)
+                
                 data['subjects'][ind]['books'][ind2]['topics'][ind3].pop('book_location')
     return data
 
